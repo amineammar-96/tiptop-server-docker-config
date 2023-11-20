@@ -67,8 +67,6 @@ services:
 
     portainer:
        image: portainer/portainer-ce:latest
-       volumes:
-            - portainer_data:/data
        restart: unless-stopped
        networks:
             - tutorial
