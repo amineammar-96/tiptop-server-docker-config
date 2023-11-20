@@ -55,7 +55,7 @@ services:
         restart: always
         networks:
             - tutorial
-        entrypoint: /var/www/entrypoint.sh
+        #entrypoint: /var/www/entrypoint.sh
 
     frontend:
         image: ghcr.io/furious-ducks-tiptop/frontend:latest
