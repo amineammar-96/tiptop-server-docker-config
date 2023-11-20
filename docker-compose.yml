@@ -1,19 +1,18 @@
 version: "3.8"
 services:
 
-
     gateway:
-    container_name: gateway
-    hostname: gateway
-    image: nginx:1.21.0-alpine
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./logs/nginx:/var/log/nginx
-      - ./nginx/config-files:/etc/nginx/conf.d/config-files 
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+        container_name: gateway
+        hostname: gateway
+        image: nginx:1.21.0-alpine
+        ports:
+        - 80:80
+        - 443:443
+        volumes:
+        - ./logs/nginx:/var/log/nginx
+        - ./nginx/config-files:/etc/nginx/conf.d/config-files 
+        - "/var/run/docker.sock:/tmp/docker.sock:ro"
+        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     # entrypoint:  
     command: ["nginx", "-g", "daemon off;"] 
     restart: on-failure
@@ -58,7 +57,7 @@ services:
         networks:
             - tutorial
         entrypoint: /var/www/entrypoint.sh
-        
+
     frontend:
         image: ghcr.io/furious-ducks-tiptop/frontend:latest
         ports:
