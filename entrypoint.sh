@@ -9,27 +9,27 @@ php bin/console doctrine:fixtures:load
 # Add any other commands here
 
 #1 generate roles 
-#php bin/console app:create-default-role
+php bin/console app:create-default-role
 
 #2 add tiptop store , admin and anonyme user 
-#php bin/console app:create-default-tiptop-company
+php bin/console app:create-default-tiptop-company
 
 #3 generate prizes
-#php bin/console app:add-prizes
+php bin/console app:add-prizes
 
 #4 generate tickets
-#php -d memory_limit=${PHP_MEMORY_LIMIT} bin/console app:generate-tickets
+php -d memory_limit=${PHP_MEMORY_LIMIT} bin/console app:generate-tickets
 
 #5 generate fake data
-#php bin/console app:generate-data
+php bin/console app:generate-data
 
 #6 generate email services
-#php bin/console app:generate-email-services
+php bin/console app:generate-email-services
 
 #7 generate email templates variables
-#php bin/console app:generate-email-templates-variables
+php bin/console app:generate-email-templates-variables
 
 #8 generate email templates
-#php bin/console app:generate-email-templates
+php bin/console app:generate-email-templates
 # Start the Apache server
 exec apache2-foreground
