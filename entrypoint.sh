@@ -32,4 +32,6 @@ php bin/console app:generate-email-templates-variables
 #8 generate email templates
 php bin/console app:generate-email-templates
 # Start the Apache server
+
+php bin/console cache:clear --env=prod
 exec apache2-foreground
