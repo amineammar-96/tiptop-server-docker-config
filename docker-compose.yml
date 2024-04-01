@@ -1,78 +1,185 @@
 version: "3.8"
 services:
-    gateway:
-        container_name: gateway
-        hostname: gateway
-        image: nginx:1.21.0-alpine
-        ports:
-        - 80:80
-        - 443:443
-        volumes:
-        - ./logs/nginx:/var/log/nginx
-        - ./nginx/config-files:/etc/nginx/conf.d/config-files 
-        - "/var/run/docker.sock:/tmp/docker.sock:ro"
-        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    # entrypoint:  
-        command: ["nginx", "-g", "daemon off;"] 
-        restart: on-failure
-    # Mysql database container
-    db:
-        image: mysql
-        container_name: tutorial_db_symfony
-        restart: always
-        volumes:
-            - db-data:/var/lib/mysql
-        environment:
-            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-        networks:
-            - tutorial
+  gateway:
+    container_name: gateway
+    hostname: gateway
+    image: nginx:1.21.0-alpine
+    ports:
+      - 80:80
+      - 0.0.0.0:443:443
+    restart: always
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+      - ./nginx/config-files:/etc/nginx/conf.d/config-files
+      - ./certbot/www:/var/www/certbot/:ro
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl-certif:/ssl-certif
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+    command: ["nginx", "-g", "daemon off;"]
+    networks:
+      - tutorial
+    depends_on:
+      - frontend
+      - backend
 
-    # phpmyadmin container
-    phpmyadmin:
-        image: phpmyadmin
-        container_name: tutorial_phpmyadmin
-        restart: always
-        depends_on:
-            - db
-        ports:
-            - 8080:80
-        environment:
-            PMA_HOST: db
-        networks:
-            - tutorial
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
 
-    # Symfony apache project container
-    backend:
-        image: ghcr.io/furious-ducks-tiptop/backend:latest
-        container_name: backend
-        ports:
-          - "8741:80"
-        volumes:
-            - ./docker/php/vhosts:/etc/apache2/sites-enabled
-            - ./:/var/www/html/
-        env_file:
-            - .env    
-        restart: always
-        networks:
-            - tutorial
-        #entrypoint: /var/www/entrypoint.sh
+  db:
+    image: mysql
+    container_name: tutorial_db_symfony
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - tutorial
 
-    frontend:
-        image: ghcr.io/furious-ducks-tiptop/frontend:latest
-        ports:
-        - "3000:3000"
-        env_file:
-         - .env.production
-        
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: tutorial_phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: db
+    networks:
+      - tutorial
 
-    portainer:
-       image: portainer/portainer-ce:latest
-       restart: unless-stopped
-       networks:
-            - tutorial
+  backend:
+    image: ghcr.io/furious-ducks-tiptop/backend:1.0.0
+    container_name: backend
+    hostname: backend
+    ports:
+      - "8741:80"
+    volumes:
+      - ./php/vhosts:/etc/apache2/sites-enabled
+      - ./entrypoint.sh:/var/www/entrypoint.sh:ro
+      - ./log:/var/www/var/log
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - tutorial
+    entrypoint: /var/www/entrypoint.sh
+
+  frontend:
+    image: ghcr.io/furious-ducks-tiptop/frontend:latest
+    hostname: frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+    networks:
+      - tutorial
+
+  frontend-dev:
+    image: ghcr.io/furious-ducks-tiptop/frontend-dev:latest
+    container_name: frontend-dev
+    hostname: frontend-dev
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+    networks:
+      - tutorial
+
+  backend-dev:
+    image: ghcr.io/furious-ducks-tiptop/backend-dev:latest
+    container_name: backend-dev
+    hostname: backend-dev
+    ports:
+      - "8742:80"
+    volumes:
+      - ./php/vhosts:/etc/apache2/sites-enabled
+      - ./entrypoint.sh:/var/www/entrypoint.sh:ro
+      - ./log:/var/www/var/log
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - tutorial
+    entrypoint: /var/www/entrypoint.sh
+
+  frontend-staging:
+    image: ghcr.io/furious-ducks-tiptop/frontend-staging:latest
+    container_name: frontend-staging
+    hostname: frontend-staging
+    ports:
+      - "3002:3000"
+    environment:
+      NODE_ENV: staging
+    networks:
+      - tutorial
+
+  backend-staging:
+    image: ghcr.io/furious-ducks-tiptop/backend-staging:latest
+    container_name: backend-staging
+    hostname: backend-staging
+    ports:
+      - "8743:80"
+    volumes:
+      - ./php/vhosts:/etc/apache2/sites-enabled
+      - ./entrypoint.sh:/var/www/entrypoint.sh:ro
+      - ./log:/var/www/var/log
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - tutorial
+    entrypoint: /var/www/entrypoint.sh
+
+  frontend-preprod:
+    image: ghcr.io/furious-ducks-tiptop/frontend-preprod:latest
+    container_name: frontend-preprod
+    hostname: frontend-preprod
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: preprod
+    networks:
+      - tutorial
+
+  backend-preprod:
+    image: ghcr.io/furious-ducks-tiptop/backend-preprod:latest
+    container_name: backend-preprod
+    hostname: backend-preprod
+    ports:
+      - "8744:80"
+    volumes:
+      - ./php/vhosts:/etc/apache2/sites-enabled
+      - ./entrypoint.sh:/var/www/entrypoint.sh:ro
+      - ./log:/var/www/var/log
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - tutorial
+    entrypoint: /var/www/entrypoint.sh
+
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    networks:
+      - tutorial
 
 networks:
-    tutorial:
+  tutorial:
 
 volumes:
-    db-data:
+  db-data:
