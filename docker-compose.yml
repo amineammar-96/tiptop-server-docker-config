@@ -216,7 +216,7 @@ services:
   grafana:
     image: grafana/grafana
     ports:
-      - "3008:3008"
+      - "4000:3000"
 
   alertmanager:
     image: prom/alertmanager

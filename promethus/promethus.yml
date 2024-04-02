@@ -10,4 +10,4 @@ scrape_configs:
 
   - job_name: 'tiptopgame'
     static_configs:
-      - targets: ['https://www.dsp5-archi-o23a-15m-g2.tech/'] # cible à scraper : votre application exposant des métriques
+      - targets: ['85.31.239.78'] # cible à scraper : votre application exposant des métriques
