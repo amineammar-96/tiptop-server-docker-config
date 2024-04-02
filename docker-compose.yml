@@ -5,7 +5,7 @@ services:
     hostname: gateway
     image: nginx:1.21.0-alpine
     ports:
-      - 80:80
+      # - 80:80
       - 0.0.0.0:443:443
     restart: always
     volumes:
@@ -178,6 +178,7 @@ services:
     networks:
       - tutorial
 
+
   sonarqube:
     image: sonarqube
     restart: unless-stopped
@@ -193,7 +194,7 @@ services:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
-  
+
   sonarqube-db:
     image: postgres
     restart: unless-stopped
@@ -204,6 +205,26 @@ services:
     volumes:
       - sonarqube_db:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3008:3008"
+
+  alertmanager:
+    image: prom/alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+
 
 networks:
   tutorial:
