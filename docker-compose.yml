@@ -60,6 +60,7 @@ services:
       - 8080:80
     environment:
       PMA_HOST: db
+      PMA_HOST_TEST: db_test 
     networks:
       - tutorial
 
