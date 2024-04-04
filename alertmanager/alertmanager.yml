@@ -11,8 +11,8 @@ route:
 receivers:
   - name: 'default-receiver'
     email_configs:
-      - to: 'your_email@example.com'
-        from: 'alertmanager@example.com'
+      - to: 'admin-reseau@tiptopgame.com'
+        from: 'alertmanager@tiptopgame.com'
         smarthost: 'smtp.example.com:587'
         auth_username: 'your_username'
         auth_password: 'your_password'

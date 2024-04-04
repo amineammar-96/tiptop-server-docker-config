@@ -20,7 +20,7 @@ Exécutez cette ligne de cmd:
 ```
 sudo crontab -e
 ```
-rajouter cette ligne pour réaliser des backups chaque minuit:
+rajouter cette ligne pour réaliser des backups chaque minuitpar exemple:
 
 0 0 * * * ~/backup/backup.sh
 
@@ -28,4 +28,9 @@ rajouter cette ligne pour réaliser des backups chaque minuit:
 ```
  sudo borg list /backup
 
+```
+
+## Pour supprimer des sauvegarde 
+```
+borg delete /backup::sauvegarde__2024-04-03_17-41-54
 ```
