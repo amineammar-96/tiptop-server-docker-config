@@ -6,25 +6,42 @@ backup_name="docker"
 /usr/bin/borg create $backup_directory::$backup_name ~/docker
 
 
+# Function to backup MySQL databases
 backup_mysql_databases() {
     local container_name="$1"
     local backup_directory="$2"
 
     mkdir -p "$backup_directory/mysql"
 
+    current_date=$(date +%Y-%m-%d)
+
     databases=$(docker exec "$container_name" sh -c 'mysql -sN -e "show databases;"')
 
     for db_name in $databases; do
-        docker exec "$container_name" sh -c "mysqldump -u root  $db_name > /var/lib/mysql/$db_name.sql"
-        docker cp "$container_name":/var/lib/mysql/$db_name.sql "$backup_directory/mysql/"
+        docker exec "$container_name" sh -c "mysqldump -u root $db_name > /var/lib/mysql/$db_name-$current_date.sql"
+        docker cp "$container_name":/var/lib/mysql/$db_name-$current_date.sql "$backup_directory/mysql/"
     done
 
+    echo "Backup for all MySQL databases in container $container_name completed."
 }
 
+# Function to delete old backups
+delete_old_backups() {
+    local backup_directory="$1"
+    local weeks_to_keep="$2"
 
-#Dabases backups
+    echo "Deleting backups older than $weeks_to_keep weeks in $backup_directory"
+
+    find "$backup_directory" -type f -name "*.sql" -mtime +$((7 * $weeks_to_keep)) -delete
+
+    echo "Old backups deletion completed."
+}
+
 backup_mysql_databases "docker-db-1" "/backup/databases/prod/"
 backup_mysql_databases "docker-db_test-1" "/backup/databases/test/"
+
+delete_old_backups "/backup/databases/prod" 1
+delete_old_backups "/backup/databases/test" 1
 
 backup_container() {
     local container_name="$1"
