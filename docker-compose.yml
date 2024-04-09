@@ -1,12 +1,14 @@
-version: "3.8"
+version: "2.4"
 services:
   gateway:
-    container_name: gateway
+    # container_name: gateway
     hostname: gateway
     image: nginx:1.21.0-alpine
     ports:
-      # - 80:80
+      - 80:80
       - 0.0.0.0:443:443
+    links:
+      - frontend  
     restart: always
     volumes:
       - ./logs/nginx:/var/log/nginx
@@ -17,12 +19,21 @@ services:
       - ./ssl-certif:/ssl-certif
       - ./certbot/conf/:/etc/nginx/ssl/:ro
     command: ["nginx", "-g", "daemon off;"]
-    networks:
-      - tutorial
     depends_on:
       - frontend
       - backend
-
+      - backend-dev
+      - frontend-dev
+      - backend-preprod
+      - frontend-preprod
+      - backend-staging
+      - frontend-staging
+      - db
+      - db_test
+      - db_dev
+      - db_preprod
+      
+      
   certbot:
     image: certbot/certbot:latest
     volumes:
@@ -30,18 +41,17 @@ services:
 
   db:
     image: mysql
-    container_name: tutorial_db_symfony
+    hostname: db
+    # container_name: db
     restart: always
     volumes:
       - db-data:/var/lib/mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-    networks:
-      - tutorial
-
-  db_dev:
+    
+    db_dev:
     image: mysql
-    container_name: tutorial_db_dev
+    #container_name: db_dev
     restart: always
     volumes:
       - db-dev-data:/var/lib/mysql
@@ -52,45 +62,41 @@ services:
 
   db_preprod:
     image: mysql
-    container_name: tutorial_db_preprod
+    #container_name: db_preprod
     restart: always
     volumes:
       - db-preprod-data:/var/lib/mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-    networks:
-      - tutorial
 
   db_test:
     image: mysql
-    container_name: tutorial_db_test
+    #container_name: db_test
     restart: always
     volumes:
       - db-test-data:/var/lib/mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-    networks:
-      - tutorial
 
-    
+
 
   phpmyadmin:
     image: phpmyadmin
-    container_name: tutorial_phpmyadmin
+    # container_name: tutorial_phpmyadmin
     restart: always
     depends_on:
       - db
+      - db_test
     ports:
       - 8080:80
     environment:
       PMA_HOST: db
-      PMA_HOST_TEST: db_test 
-    networks:
-      - tutorial
+      PMA_HOST_TEST: db_test
+
 
   backend:
-    image: ghcr.io/furious-ducks-tiptop/backend:1.0.0
-    container_name: backend
+    image: ghcr.io/furious-ducks-tiptop/backend:latest
+    # container_name: backend
     hostname: backend
     ports:
       - "8741:80"
@@ -101,8 +107,6 @@ services:
     env_file:
       - .env
     restart: always
-    networks:
-      - tutorial
     entrypoint: /var/www/entrypoint.sh
 
   frontend:
@@ -114,23 +118,19 @@ services:
       - .env.production
     environment:
       NODE_ENV: production
-    networks:
-      - tutorial
 
   frontend-dev:
     image: ghcr.io/furious-ducks-tiptop/frontend-dev:latest
-    container_name: frontend-dev
+    # container_name: frontend-dev
     hostname: frontend-dev
     ports:
-      - "3001:3000"
+      - "3001:3000"  
     environment:
       NODE_ENV: development
-    networks:
-      - tutorial
 
   backend-dev:
     image: ghcr.io/furious-ducks-tiptop/backend-dev:latest
-    container_name: backend-dev
+    # container_name: backend-dev
     hostname: backend-dev
     ports:
       - "8742:80"
@@ -141,24 +141,21 @@ services:
     env_file:
       - .env
     restart: always
-    networks:
-      - tutorial
     entrypoint: /var/www/entrypoint.sh
 
   frontend-staging:
     image: ghcr.io/furious-ducks-tiptop/frontend-staging:latest
-    container_name: frontend-staging
+    # container_name: frontend-staging
     hostname: frontend-staging
     ports:
       - "3002:3000"
     environment:
       NODE_ENV: staging
-    networks:
-      - tutorial
+    
 
   backend-staging:
     image: ghcr.io/furious-ducks-tiptop/backend-staging:latest
-    container_name: backend-staging
+    # container_name: backend-staging
     hostname: backend-staging
     ports:
       - "8743:80"
@@ -169,24 +166,20 @@ services:
     env_file:
       - .env
     restart: always
-    networks:
-      - tutorial
     entrypoint: /var/www/entrypoint.sh
 
   frontend-preprod:
     image: ghcr.io/furious-ducks-tiptop/frontend-preprod:latest
-    container_name: frontend-preprod
+    # container_name: frontend-preprod
     hostname: frontend-preprod
     ports:
       - "3003:3000"
     environment:
       NODE_ENV: preprod
-    networks:
-      - tutorial
 
   backend-preprod:
     image: ghcr.io/furious-ducks-tiptop/backend-preprod:latest
-    container_name: backend-preprod
+    # container_name: backend-preprod
     hostname: backend-preprod
     ports:
       - "8744:80"
@@ -197,27 +190,25 @@ services:
     env_file:
       - .env
     restart: always
-    networks:
-      - tutorial
     entrypoint: /var/www/entrypoint.sh
 
 
   portainer:
     image: portainer/portainer-ce:latest
     restart: unless-stopped
+    hostname: portainer
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
     ports:
       - "9000:9000"
       - "8000:8000"
-    networks:
-      - tutorial
 
 
   sonarqube:
     image: sonarqube
     restart: unless-stopped
+    hostname: sonarqube
     environment:
       - SONARQUBE_JDBC_USERNAME=sonarqube
       - SONARQUBE_JDBC_PASSWORD=sonarpass
@@ -230,10 +221,11 @@ services:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
-
+  
   sonarqube-db:
     image: postgres
     restart: unless-stopped
+    hostname: sonarqube-db
     environment:
     - POSTGRES_USER=sonarqube
     - POSTGRES_PASSWORD=sonarpass
@@ -244,6 +236,7 @@ services:
 
   prometheus:
     image: prom/prometheus
+    hostname: prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -251,52 +244,32 @@ services:
 
   grafana:
     image: grafana/grafana
+    hostname: grafana
     ports:
       - "4000:3000"
 
   alertmanager:
     image: prom/alertmanager
+    hostname: alertmanager
     ports:
       - "9093:9093"
     volumes:
       - ./alertmanager:/etc/alertmanager
-
   backup:
     image: borgbackup/borg
+    hostname: backup
     volumes:
-      - ./backup:/backup
-      - ./:/root/.config/borg
+      - borg_backup:/backup
+      - ./:/data
     command: /bin/bash -c "export BORG_PASSPHRASE='F2i2023@grp2' && /bin/bash -c "echo '0 0 * * * ./backup/backup.sh' | crontab && cron -f""
     depends_on:
-      - db
-      - db_test
-      - db_dev    
-      - db_preprod   
-      - backend
-      - frontend
-      - frontend-dev
-      - backend-dev
-      - frontend-staging
-      - backend-staging
-      - frontend-preprod
-      - backend-preprod
-      - portainer
-      - sonarqube
-      - sonarqube-db
       - prometheus
-      - grafana
-      - alertmanager
 
-
-networks:
-  tutorial:
 
 volumes:
-  backup:
-  db-data:
   db-test-data:
-  db-dev-data:
-  db-preprod-data:
+  borg_backup:
+  db-data:
   postgresql_data:
   sonarqube_bundled-plugins:
   sonarqube_conf:
