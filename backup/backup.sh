@@ -18,21 +18,21 @@ delete_old_backups "/backup/databases/test" 2
 
 
 #backup docker containers
-backup_container "docker-frontend-1" "/backup/containers"
-backup_container "docker-frontend-dev-1" "/backup/containers"
-backup_container "docker-backend-dev-1" "/backup/containers"
-backup_container "docker-backend-1" "/backup/containers"
-backup_container "docker-backend-preprod-1" "/backup/containers"
-backup_container "docker-frontend-staging-1" "/backup/containers"
-backup_container "docker-backend-staging-1" "/backup/containers"
-backup_container "docker-frontend-preprod-1" "/backup/containers"
-backup_container "docker-gateway-1" "/backup/containers"
-backup_container "docker-sonarqube-1" "/backup/containers"
-backup_container "docker-sonarqube-db-1" "/backup/containers"
-backup_container "docker-prometheus-1" "/backup/containers"
-backup_container "docker-grafana-1" "/backup/containers"
-backup_container "docker-portainer-1" "/backup/containers"
-backup_container "docker-alertmanager-1" "/backup/containers"
+backup_docker_container "docker-frontend-1" "/backup/containers"
+backup_docker_container "docker-frontend-dev-1" "/backup/containers"
+backup_docker_container "docker-backend-dev-1" "/backup/containers"
+backup_docker_container "docker-backend-1" "/backup/containers"
+backup_docker_container "docker-backend-preprod-1" "/backup/containers"
+backup_docker_container "docker-frontend-staging-1" "/backup/containers"
+backup_docker_container "docker-backend-staging-1" "/backup/containers"
+backup_docker_container "docker-frontend-preprod-1" "/backup/containers"
+backup_docker_container "docker-gateway-1" "/backup/containers"
+backup_docker_container "docker-sonarqube-1" "/backup/containers"
+backup_docker_container "docker-sonarqube-db-1" "/backup/containers"
+backup_docker_container "docker-prometheus-1" "/backup/containers"
+backup_docker_container "docker-grafana-1" "/backup/containers"
+backup_docker_container "docker-portainer-1" "/backup/containers"
+backup_docker_container "docker-alertmanager-1" "/backup/containers"
 
 
 backup_docker_folder() {
@@ -77,7 +77,7 @@ delete_old_backups() {
     echo "Old backups deletion completed."
 }
 
-backup_container() {
+backup_docker_container() {
     local container_name="$1"
     local backup_directory="$2"
 
