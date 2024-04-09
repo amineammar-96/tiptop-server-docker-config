@@ -1,39 +1,6 @@
 export BORG_PASSPHRASE='F2i2023@grp2'
 
-# docker folder backup
-backup_docker_folder "/backup/docker" "docker"
-
-#delete old backups 
-delete_old_backups "/backup/docker" 2
-
-
-
-# databases backups
-backup_mysql_databases "docker-db-1" "/backup/databases/prod/"
-backup_mysql_databases "docker-db_test-1" "/backup/databases/test/"
-
-#delete old backups 
-delete_old_backups "/backup/databases/prod" 2
-delete_old_backups "/backup/databases/test" 2
-
-
-#backup docker containers
-backup_docker_container "docker-frontend-1" "/backup/containers"
-backup_docker_container "docker-frontend-dev-1" "/backup/containers"
-backup_docker_container "docker-backend-dev-1" "/backup/containers"
-backup_docker_container "docker-backend-1" "/backup/containers"
-backup_docker_container "docker-backend-preprod-1" "/backup/containers"
-backup_docker_container "docker-frontend-staging-1" "/backup/containers"
-backup_docker_container "docker-backend-staging-1" "/backup/containers"
-backup_docker_container "docker-frontend-preprod-1" "/backup/containers"
-backup_docker_container "docker-gateway-1" "/backup/containers"
-backup_docker_container "docker-sonarqube-1" "/backup/containers"
-backup_docker_container "docker-sonarqube-db-1" "/backup/containers"
-backup_docker_container "docker-prometheus-1" "/backup/containers"
-backup_docker_container "docker-grafana-1" "/backup/containers"
-backup_docker_container "docker-portainer-1" "/backup/containers"
-backup_docker_container "docker-alertmanager-1" "/backup/containers"
-
+#methods
 
 backup_docker_folder() {
     local backup_directory="$1"
@@ -89,6 +56,27 @@ backup_docker_container() {
 
     echo "Backup for container $container_name completed."
 }
+
+
+
+
+# docker folder backup
+backup_docker_folder "/backup/docker" "docker"
+
+#delete old backups 
+delete_old_backups "/backup/docker" 2
+
+
+
+# databases backups
+backup_mysql_databases "docker-db-1" "/backup/databases/prod/"
+backup_mysql_databases "docker-db_test-1" "/backup/databases/test/"
+
+#delete old backups 
+delete_old_backups "/backup/databases/prod" 2
+delete_old_backups "/backup/databases/test" 2
+
+
 
 
 
