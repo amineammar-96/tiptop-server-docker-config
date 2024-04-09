@@ -244,7 +244,22 @@ services:
       - ./:/root/.config/borg
     command: /bin/bash -c "export BORG_PASSPHRASE='F2i2023@grp2' && /bin/bash -c "echo '0 0 * * * ./backup/backup.sh' | crontab && cron -f""
     depends_on:
+      - db
+      - db_test
+      - backend
+      - frontend
+      - frontend-dev
+      - backend-dev
+      - frontend-staging
+      - backend-staging
+      - frontend-preprod
+      - backend-preprod
+      - portainer
+      - sonarqube
+      - sonarqube-db
       - prometheus
+      - grafana
+      - alertmanager
 
 
 networks:
