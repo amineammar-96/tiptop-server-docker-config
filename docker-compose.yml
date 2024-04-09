@@ -39,6 +39,28 @@ services:
     networks:
       - tutorial
 
+  db_dev:
+    image: mysql
+    container_name: tutorial_db_dev
+    restart: always
+    volumes:
+      - db-dev-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - tutorial
+
+  db_preprod:
+    image: mysql
+    container_name: tutorial_db_preprod
+    restart: always
+    volumes:
+      - db-preprod-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - tutorial
+
   db_test:
     image: mysql
     container_name: tutorial_db_test
@@ -49,6 +71,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     networks:
       - tutorial
+
+    
 
   phpmyadmin:
     image: phpmyadmin
@@ -246,6 +270,8 @@ services:
     depends_on:
       - db
       - db_test
+      - db_dev    
+      - db_preprod   
       - backend
       - frontend
       - frontend-dev
@@ -266,9 +292,11 @@ networks:
   tutorial:
 
 volumes:
-  db-test-data:
   backup:
   db-data:
+  db-test-data:
+  db-dev-data:
+  db-preprod-data:
   postgresql_data:
   sonarqube_bundled-plugins:
   sonarqube_conf:
