@@ -6,6 +6,8 @@ backup_docker_folder() {
     local backup_directory="$1"
     local backup_name="$2"
 
+    mkdir -p "$backup_directory"
+
     current_datetime=$(date +%Y-%m-%d_%H-%M-%S)
 
     /usr/bin/borg create "$backup_directory::$backup_name-$current_datetime" ~/docker
