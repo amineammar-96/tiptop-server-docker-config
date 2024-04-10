@@ -98,8 +98,7 @@ services:
     ports:
       - 8080:80
     environment:
-      PMA_HOST: db
-      PMA_HOST_TEST: db_test
+      PMA_HOST: "db, db_dev, db_preprod, db_test"
     networks:
       - tiptop_network
 
