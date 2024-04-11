@@ -28,7 +28,6 @@ rajouter cette ligne pour réaliser des backups chaque minuitpar exemple:
 ```
  sudo borg list /backup
 ```
-Le mot de passe: F2i2023@grp2
 ## Pour supprimer des sauvegarde 
 ```
 borg delete /backup::sauvegarde__2024-04-03_17-41-54
