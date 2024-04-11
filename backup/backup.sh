@@ -1,24 +1,9 @@
 export BORG_PASSPHRASE='F2i2023@grp2'
-
-
 /usr/bin/borg create /backup::sauvegarde__$(date +%Y-%m-%d_%H-%M-%S) ~/docker
+
+
+
 #methods
-
-backup_docker_folder() {
-    local backup_directory="$1"
-    local backup_name="$2"
-
-    mkdir -p "$backup_directory"
-
-    current_datetime=$(date +%Y-%m-%d_%H-%M-%S)
-
-    /usr/bin/borg create "$backup_directory::$backup_name-$current_datetime" ~/docker
-
-    echo "Docker folder backup completed: $backup_name-$current_datetime"
-}
-
-
-
 backup_mysql_databases() {
     local container_name="$1"
     local backup_directory="$2"
@@ -42,10 +27,11 @@ backup_mysql_databases() {
 backup_container() {
     local container_name="$1"
     local backup_directory="$2"
+    local backup_name="$container_name" # Assuming backup name is the same as container name
 
     mkdir -p "$backup_directory/$container_name"
 
-    docker exec "$container_name" sh -c "tar -czf - /" > "$backup_directory/$container_name/$container_name_backup.tar.gz"
+    docker exec --volumes "$container_name" sh -c "tar -czf - /" > "$backup_directory/$container_name/$container_name_backup.tar.gz"
 
     /usr/bin/borg create /backup::$backup_name "$backup_directory/$container_name"
 
@@ -83,7 +69,7 @@ backup_mysql_databases "docker-db_dev-1" "/backup/databases/dev/"
 
 
 
-# Backup Docker containers
+# Backup Docker containers ( 
 #backup_container "docker-frontend-1" "/backup/containers"
 #backup_container "docker-frontend-dev-1" "/backup/containers"
 #backup_container "docker-backend-dev-1" "/backup/containers"
